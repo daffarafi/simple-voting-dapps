@@ -49,7 +49,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <AppContext.Provider value={{ walletSelector, setWalletSelector, network }}>
-      <WalletSelectorProvider config={walletSelectorConfig}>
+      {/* How to fix this? */}
+      <WalletSelectorProvider config={walletSelectorConfig as any}>
         {children}
       </WalletSelectorProvider>
     </AppContext.Provider>

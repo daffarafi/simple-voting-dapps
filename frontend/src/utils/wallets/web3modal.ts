@@ -27,7 +27,9 @@ const near = {
 };
 
 // Get your projectId at https://cloud.reown.com
-const projectId = '1d5da94884ec175e91bafb27f6f4e964';
+const projectId =
+  process.env.NEXT_PUBLIC_WALLET_PROJECT_ID ??
+  '1d5da94884ec175e91bafb27f6f4e964';
 
 export const wagmiConfig = createConfig({
   chains: [near],

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CalendarIcon, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -23,6 +23,10 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
+import { useWalletSelector } from '@near-wallet-selector/react-hook';
+import { HelloNearContract } from '@/config';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface Candidate {
   name: string;
@@ -37,10 +41,15 @@ interface FormData {
 }
 
 export function NewSessionForm() {
+  const router = useRouter();
+  const { signedAccountId, callFunction } = useWalletSelector();
+
   const [candidates, setCandidates] = useState<Candidate[]>([
     { name: '', description: '' },
     { name: '', description: '' },
   ]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -50,10 +59,46 @@ export function NewSessionForm() {
     },
   });
 
-  function onSubmit(data: FormData) {
-    console.log(data);
-    // Here you would typically send the data to your backend
-  }
+  const onSubmit = async (data: FormData) => {
+    if (!loggedIn) {
+      toast.error('Please login first!');
+      return;
+    }
+    // Data kandidat dari input teks (tanpa gambar)
+    const candidateDetails = data.candidates;
+
+    // Gabungkan berdasarkan indeks
+    const mergedCandidates = candidateDetails.map((candidate, index) => [
+      candidate.name,
+      candidate.description,
+    ]);
+
+    // Buat objek hasil penggabungan
+    const finalData = {
+      title: data.title,
+      description: data.description,
+      expires_at: data.endDate.getTime(),
+      candidates: mergedCandidates,
+    };
+
+    try {
+      setLoading(true);
+      callFunction({
+        contractId: HelloNearContract,
+        method: 'create_voting_session',
+        args: finalData,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      toast.success('Success add new session!');
+      router.refresh();
+    } catch (err) {
+      console.log(err);
+      toast.error('Failed to add new session!');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addCandidate = () => {
     setCandidates([...candidates, { name: '', description: '' }]);
@@ -66,11 +111,15 @@ export function NewSessionForm() {
     }
   };
 
+  useEffect(() => {
+    setLoggedIn(!!signedAccountId);
+  }, [signedAccountId]);
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6  max-h-[80vh] overflow-y-auto px-2"
+        className="space-y-6 px-2 max-h-[80vh] overflow-y-auto"
       >
         <FormField
           control={form.control}
@@ -155,7 +204,7 @@ export function NewSessionForm() {
             </Button>
           </div>
 
-          {candidates.map((_, index) => (
+          {candidates.map((candidate, index) => (
             <div key={index} className="grid gap-4 p-4 border rounded-lg">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium">Candidate {index + 1}</h4>
@@ -170,6 +219,7 @@ export function NewSessionForm() {
                   </Button>
                 )}
               </div>
+
               <FormField
                 control={form.control}
                 name={`candidates.${index}.name`}
@@ -207,7 +257,9 @@ export function NewSessionForm() {
           <Button type="button" variant="outline">
             Cancel
           </Button>
-          <Button type="submit">Create Session</Button>
+          <Button disabled={loading} type="submit">
+            Create Session
+          </Button>
         </div>
       </form>
     </Form>

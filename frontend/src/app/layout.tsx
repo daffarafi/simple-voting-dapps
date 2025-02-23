@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { AppProvider } from '@/contexts/AppContext';
 import '@near-wallet-selector/modal-ui/styles.css';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -34,6 +35,7 @@ export default function RootLayout({
         <AppProvider>
           <Navbar />
           {children}
+          <Toaster />
         </AppProvider>
       </body>
     </html>

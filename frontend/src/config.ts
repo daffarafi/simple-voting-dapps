@@ -1,6 +1,10 @@
 const contractPerNetwork = {
-  mainnet: 'apa-aja.near',
-  testnet: 'apa-aja.testnet',
+  mainnet:
+    (process.env.NEXT_PUBLIC_CONTRACT_ID ?? 'example-simple-voting-dapp') +
+    '.near',
+  testnet:
+    (process.env.NEXT_PUBLIC_CONTRACT_ID ?? 'example-simple-voting-dapp') +
+    '.testnet',
 };
 // Chains for EVM Wallets
 const evmWalletChains = {
@@ -18,6 +22,7 @@ const evmWalletChains = {
   },
 };
 
-export const NetworkId = 'testnet';
+export const NetworkId =
+  process.env.NEXT_PUBLIC_NETWORK_ID === 'mainnet' ? 'mainnet' : 'testnet';
 export const HelloNearContract = contractPerNetwork[NetworkId];
 export const EVMWalletChain = evmWalletChains[NetworkId];

@@ -1,3 +1,4 @@
+import { HelloNearContract, NetworkId } from '@/config';
 import {
   connect,
   keyStores,
@@ -5,9 +6,7 @@ import {
   Contract,
   Near,
 } from 'near-api-js';
-
-const CONTRACT_ID = 'your-contract.testnet'; // Change to your deployed contract ID
-const NETWORK_ID = 'testnet';
+import { ContractMethods } from 'near-api-js/lib/contract';
 
 export type VotingContract = {
   create_voting_session: () => Promise<number>;
@@ -32,7 +31,7 @@ export async function initNear(): Promise<{
   wallet: WalletConnection;
 }> {
   const config = {
-    networkId: NETWORK_ID,
+    networkId: NetworkId,
     keyStore: new keyStores.BrowserLocalStorageKeyStore(),
     nodeUrl: 'https://rpc.testnet.near.org',
     walletUrl: 'https://wallet.testnet.near.org',
@@ -47,8 +46,8 @@ export async function initNear(): Promise<{
 export async function getContract(
   wallet: WalletConnection,
 ): Promise<VotingContract> {
-  return new Contract(wallet.account(), CONTRACT_ID, {
-    viewMethods: ['get_votes', 'get_voter_choice', 'get_candidates'],
-    changeMethods: ['create_voting_session', 'add_candidate', 'vote'],
-  }) as VotingContract;
+  return new Contract(wallet.account(), HelloNearContract, {
+    viewMethods: ['get_all_sessions'],
+    changeMethods: ['create_voting_session', 'vote'],
+  } as ContractMethods) as unknown as VotingContract;
 }
