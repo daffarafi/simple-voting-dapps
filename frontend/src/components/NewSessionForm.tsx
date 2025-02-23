@@ -68,7 +68,7 @@ export function NewSessionForm() {
     const candidateDetails = data.candidates;
 
     // Gabungkan berdasarkan indeks
-    const mergedCandidates = candidateDetails.map((candidate, index) => [
+    const mergedCandidates = candidateDetails.map((candidate) => [
       candidate.name,
       candidate.description,
     ]);

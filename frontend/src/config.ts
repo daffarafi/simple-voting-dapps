@@ -1,9 +1,9 @@
 const contractPerNetwork = {
   mainnet:
-    (process.env.NEXT_PUBLIC_CONTRACT_ID ?? 'example-simple-voting-dapp') +
+    (process.env.NEXT_PUBLIC_CONTRACT_ID ?? 'example-simple-voting-dapps') +
     '.near',
   testnet:
-    (process.env.NEXT_PUBLIC_CONTRACT_ID ?? 'example-simple-voting-dapp') +
+    (process.env.NEXT_PUBLIC_CONTRACT_ID ?? 'example-simple-voting-dapps') +
     '.testnet',
 };
 // Chains for EVM Wallets

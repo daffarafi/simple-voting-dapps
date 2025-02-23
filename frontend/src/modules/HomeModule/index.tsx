@@ -25,6 +25,7 @@ import { Progress } from '@/components/ui/progress';
 import { HelloNearContract } from '@/config';
 import { VotingSession } from './interface';
 import { deserializeSession } from './serializers';
+import { Loader } from 'lucide-react';
 
 export const HomeModule = () => {
   const { signedAccountId, callFunction, viewFunction } = useWalletSelector();
@@ -125,106 +126,119 @@ export const HomeModule = () => {
         </div>
 
         <div className="grid gap-6">
-          {sessions.map((session) => {
-            const totalVote = session.candidates.reduce(
-              (sum, candidate) => sum + candidate.voteCount,
-              0,
-            );
+          {isLoading ? (
+            <div className="min-h-12 flex justify-center items-center">
+              <Loader className="animate-spin" />
+            </div>
+          ) : sessions.length === 0 ? (
+            <span className="text-center text-gray-500 mt-4">
+              No voting sessions available. <br />
+              Please create one or check back later.
+            </span>
+          ) : (
+            sessions.map((session) => {
+              const totalVote = session.candidates.reduce(
+                (sum, candidate) => sum + candidate.voteCount,
+                0,
+              );
 
-            return (
-              <Card key={session.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>{session.title}</CardTitle>
-                      <CardDescription>
-                        {session.description}.{' '}
-                        <span className="text-red-600">
-                          Voting ends in {epochToDayLeft(session.expiresAt)}{' '}
-                          day(s)
-                        </span>
-                      </CardDescription>
-                    </div>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Show menu</span>
-                    </Button>
-                  </div>
-                  {/* Creator Info */}
-                  <div className="flex items-center gap-2 mt-2">
-                    <Image
-                      src="/placeholder.png?height=24&width=24"
-                      alt="Creator"
-                      width={24}
-                      height={24}
-                      className="rounded-full"
-                    />
-                    <div className="text-sm text-muted-foreground">
-                      Created by{' '}
-                      <span className="font-medium text-foreground">
-                        {session.creator}
-                      </span>
-                      <span className="mx-1">•</span>
-                      <time dateTime="2024-02-20">
-                        {new Date(session.createdAt).toLocaleDateString(
-                          'en-US',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          },
-                        )}
-                      </time>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="grid gap-6">
-                  {session.candidates.map((candidate) => {
-                    return (
-                      <div key={candidate.id} className="space-y-4">
-                        <div className="flex items-center gap-4">
-                          <Image
-                            src="/placeholder.png?height=64&width=64"
-                            alt={candidate.name}
-                            width={64}
-                            height={64}
-                            className="rounded-full"
-                          />
-                          <div className="flex-1">
-                            <h3 className="font-semibold">{candidate.name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {candidate.description}
-                            </p>
-                          </div>
-                          <Button
-                            onClick={() =>
-                              handleVoteClick(
-                                session.id,
-                                candidate.id,
-                                candidate.name,
-                                session.title,
-                              )
-                            }
-                            disabled={epochToDayLeft(session.expiresAt) <= 0}
-                          >
-                            Vote
-                          </Button>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Current Votes</span>
-                            <span>{candidate.voteCount}</span>
-                          </div>
-                          <Progress
-                            value={(candidate.voteCount / totalVote) * 100}
-                          />
-                        </div>
+              return (
+                <Card key={session.id}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <CardTitle>{session.title}</CardTitle>
+                        <CardDescription>
+                          {session.description}.{' '}
+                          <span className="text-red-600">
+                            Voting ends in {epochToDayLeft(session.expiresAt)}{' '}
+                            day(s)
+                          </span>
+                        </CardDescription>
                       </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            );
-          })}
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Show menu</span>
+                      </Button>
+                    </div>
+                    {/* Creator Info */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <Image
+                        src="/placeholder.png?height=24&width=24"
+                        alt="Creator"
+                        width={24}
+                        height={24}
+                        className="rounded-full"
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        Created by{' '}
+                        <span className="font-medium text-foreground">
+                          {session.creator}
+                        </span>
+                        <span className="mx-1">•</span>
+                        <time dateTime="2024-02-20">
+                          {new Date(session.createdAt).toLocaleDateString(
+                            'en-US',
+                            {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            },
+                          )}
+                        </time>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="grid gap-6">
+                    {session.candidates.map((candidate) => {
+                      return (
+                        <div key={candidate.id} className="space-y-4">
+                          <div className="flex items-center gap-4">
+                            <Image
+                              src="/placeholder.png?height=64&width=64"
+                              alt={candidate.name}
+                              width={64}
+                              height={64}
+                              className="rounded-full"
+                            />
+                            <div className="flex-1">
+                              <h3 className="font-semibold">
+                                {candidate.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {candidate.description}
+                              </p>
+                            </div>
+                            <Button
+                              onClick={() =>
+                                handleVoteClick(
+                                  session.id,
+                                  candidate.id,
+                                  candidate.name,
+                                  session.title,
+                                )
+                              }
+                              disabled={epochToDayLeft(session.expiresAt) <= 0}
+                            >
+                              Vote
+                            </Button>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Current Votes</span>
+                              <span>{candidate.voteCount}</span>
+                            </div>
+                            <Progress
+                              value={(candidate.voteCount / totalVote) * 100}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
         </div>
       </div>
 
